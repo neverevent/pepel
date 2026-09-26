@@ -1,2 +1,2 @@
 # pepel
-A Darm Room-like incremental game.
+A Dark Room-like incremental game.
