@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пепел</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="app">
+  <header id="topbar">
+    <span id="day-label">День 1</span>
+    <span id="population-label">Жители: 2</span>
+    <span>
+      <button id="speed-btn" class="action" style="padding:0 8px;">x1</button>
+      <button id="pause-btn" class="action" style="padding:0 8px;">Пауза</button>
+      <button id="export-btn" class="action" style="padding:0 8px;">Экспорт</button>
+      <button id="import-btn" class="action" style="padding:0 8px;">Импорт</button>
+      <input type="file" id="import-file" accept=".json,application/json" style="display:none;">
+      <button id="reset-btn" class="action" style="padding:0 8px;">Сброс</button>
+      <button id="lang-btn" class="action" style="padding:0 8px;">RU</button>
+      <span id="ver-badge" class="cost" style="opacity:0.7;"></span>
+    </span>
+  </header>
+
+  <section id="log-strip" aria-live="polite"></section>
+
+  <nav id="tabs" role="tablist">
+    <button class="tab active" data-tab="village" data-i18n="ui.tabs.village">Деревня</button>
+    <button class="tab" data-tab="craft" data-i18n="ui.tabs.craft">Ремесло</button>
+    <button class="tab" data-tab="build" data-i18n="ui.tabs.build">Стройка</button>
+    <button class="tab" data-tab="research" style="display:none;" data-i18n="ui.tabs.research">Исследования</button>
+    <button class="tab" data-tab="map" style="display:none;" data-i18n="ui.tabs.map">Карта</button>
+  </nav>
+
+  <section id="panel-village" class="panel active">
+    <div id="fire-status" aria-live="polite"></div>
+    <div id="morale"></div>
+    <div id="gathering"></div>
+    <div id="jobs"></div>
+    <div id="resources"></div>
+  </section>
+
+  <section id="panel-craft" class="panel">
+    <div id="craft-list"></div>
+    <div id="market-list"></div>
+  </section>
+
+  <section id="panel-build" class="panel">
+    <div id="build-list"></div>
+    <div id="culture-list"></div>
+    <div id="built-list"></div>
+  </section>
+
+  <section id="panel-research" class="panel">
+    <div id="research-list"></div>
+  </section>
+
+  <section id="panel-map" class="panel">
+    <div id="map-info" class="cost"></div>
+    <canvas id="map-canvas" width="512" height="512" style="width:100%;image-rendering:pixelated;margin-top:10px;"></canvas>
+    <div id="map-actions" style="margin-top:10px;"></div>
+  </section>
+  </main>
+  <div id="gameover" style="display:none;position:fixed;inset:0;background:rgba(15,10,6,0.92);z-index:100;align-items:center;justify-content:center;">
+    <div style="text-align:center;max-width:420px;padding:24px;border:1px solid #6b4a2a;background:#201812;">
+      <h2 id="gameover-text">Деревня опустела. Игра окончена.</h2>
+      <button id="go-restart-btn" class="action" style="margin:6px;">Начать заново</button>
+      <button id="go-import-btn" class="action" style="margin:6px;">Импорт сохранения</button>
+    </div>
+  </div>
+<script>
+(function () {
+  var bust = "?v=" + new Date().getTime();
+  var files = [
+    "data.js",
+    "i18n/i18n.js",
+    "core.js",
+    "tick.js",
+    "ui-village.js",
+    "ui-build.js",
+    "ui-craft.js",
+    "ui-research.js",
+    "ui-map.js",
+    "main.js"
+  ];
+  for (var i = 0; i < files.length; i++) {
+    document.write('<script src="' + files[i] + bust + '"><\/script>');
+  }
+})();
+</script>
+<script>
+setTimeout(function () {
+  if (!window.__gameLoaded) {
+    var need = {
+      "data.js": ["RESOURCES", "JOBS", "BUILDINGS", "CRAFTS", "RESEARCHES", "EVENTS", "SEASONS", "TRADES", "GEAR", "CULTURE_BUILDINGS", "CONFIG"],
+      "i18n/ru.js": ["I18N"],
+      "core.js": ["initialState", "load", "canAfford", "T"],
+      "tick.js": ["tick", "unlockCheck"],
+      "ui-village.js": ["renderResources", "renderJobs", "renderMorale"],
+      "ui-build.js": ["renderBuildings", "renderCulture", "renderBuilt"],
+      "ui-craft.js": ["renderCrafts", "renderMarket"],
+      "ui-research.js": ["renderResearch"],
+      "ui-map.js": ["drawMap", "renderMap", "renderExpedition"],
+      "main.js": ["render", "renderLog", "loop"]
+    };
+    var lines = [];
+    for (var f in need) {
+      var missing = need[f].filter(function (n) { return typeof window[n] === "undefined"; });
+      if (missing.length) lines.push(f + ": нет " + missing.join(", "));
+    }
+    var box = document.createElement("pre");
+    box.style.cssText = "color:#e08a4a;margin-top:12px;";
+    box.textContent = "Скрипты не запустились.\n" + (lines.length ? lines.join("\n") : "Файлы на месте, но что-то упало до инициализации. Ctrl+F5.");
+    document.getElementById("app").appendChild(box);
+  }
+}, 2000);
+</script>
+</body>
+</html>
